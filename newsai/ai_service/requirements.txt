@@ -1,0 +1,16 @@
+fastapi
+uvicorn[standard]
+transformers
+torch
+nltk
+
+Django
+djangorestframework
+djangorestframework-simplejwt
+python-dotenv
+requests
+WeasyPrint
+python-pptx
+Pillow
+whitenoise
+gunicorn
