@@ -1,64 +1,70 @@
-//frontend/src/pages/Dashboard.jsx
-
-import { useEffect, useState } from "react";
-import axios from "axios";
+// frontend/src/pages/Dashboard.jsx
+import React, { useEffect, useState } from "react";
 import {
   PieChart,
   Pie,
   Cell,
+  Tooltip,
   LineChart,
   Line,
   XAxis,
   YAxis,
-  Tooltip,
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
+import ReactWordcloud from "react-wordcloud";
 
 function Dashboard() {
-  const [data, setData] = useState({ sentiment: [], trend: [], wordcloud: null });
+  const [sentimentData, setSentimentData] = useState([]);
+  const [trendData, setTrendData] = useState([]);
+  const [keywords, setKeywords] = useState([]);
 
+  // Mock data
   useEffect(() => {
-    async function fetchAnalytics() {
-      const res = await axios.get("/api/analytics/sentiment");
-      setData(res.data);
-    }
-    fetchAnalytics();
+    setSentimentData([
+      { name: "Positive", value: 40 },
+      { name: "Negative", value: 25 },
+      { name: "Neutral", value: 35 },
+    ]);
+
+    setTrendData([
+      { date: "2025-09-04", positive: 5, negative: 2, neutral: 3 },
+      { date: "2025-09-05", positive: 7, negative: 1, neutral: 2 },
+      { date: "2025-09-06", positive: 6, negative: 4, neutral: 2 },
+    ]);
+
+    setKeywords([
+      { text: "AI", value: 30 },
+      { text: "Politics", value: 20 },
+      { text: "Economy", value: 15 },
+    ]);
   }, []);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-6">
-      <h2 className="text-4xl font-extrabold text-white mb-8 drop-shadow-md">
-        Analytics Dashboard
-      </h2>
+  const COLORS = ["#4ade80", "#f87171", "#60a5fa"];
 
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Pie Chart */}
-        <div className="bg-white/20 backdrop-blur-lg p-6 rounded-2xl shadow-lg border border-white/30">
-          <h3 className="font-semibold mb-4 text-lg text-white">Sentiment Distribution</h3>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-orange-500 to-red-500 p-10">
+      <h1 className="text-4xl font-bold mb-10 text-center text-white drop-shadow-lg">
+        📊 Analytics Dashboard
+      </h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        {/* Sentiment Pie Chart */}
+        <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-200">
+          <h2 className="text-xl font-semibold mb-4 text-gray-800">
+            Sentiment Distribution
+          </h2>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={data.sentiment}
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
+                data={sentimentData}
                 dataKey="value"
-                label={({ name, percent }) =>
-                  `${name} ${(percent * 100).toFixed(0)}%`
-                }
+                nameKey="name"
+                outerRadius={100}
+                label
               >
-                {data.sentiment.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={
-                      entry.name === "Positive"
-                        ? "#22c55e"
-                        : entry.name === "Negative"
-                        ? "#ef4444"
-                        : "#9ca3af"
-                    }
-                  />
+                {sentimentData.map((entry, index) => (
+                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip />
@@ -66,33 +72,46 @@ function Dashboard() {
           </ResponsiveContainer>
         </div>
 
+        {/* Word Cloud */}
+        <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-200">
+          <h2 className="text-xl font-semibold mb-4 text-gray-800">
+            Keyword Cloud
+          </h2>
+          <div className="h-[300px] flex items-center justify-center">
+            {keywords.length > 0 ? (
+              <ReactWordcloud
+                words={keywords}
+                options={{
+                  rotations: 2,
+                  rotationAngles: [0, 90],
+                  fontSizes: [15, 40],
+                  colors: ["#facc15", "#f87171", "#4ade80", "#60a5fa"],
+                }}
+              />
+            ) : (
+              <p className="text-gray-500">No keywords available</p>
+            )}
+          </div>
+        </div>
+
         {/* Trend Line */}
-        <div className="bg-white/20 backdrop-blur-lg p-6 rounded-2xl shadow-lg border border-white/30">
-          <h3 className="font-semibold mb-4 text-lg text-white">7-Day Sentiment Trend</h3>
+        <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-200">
+          <h2 className="text-xl font-semibold mb-4 text-gray-800">
+            Sentiment Trend (7 days)
+          </h2>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={data.trend}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ddd" />
-              <XAxis dataKey="date" stroke="#fff" />
-              <YAxis stroke="#fff" />
+            <LineChart data={trendData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="date" stroke="#374151" />
+              <YAxis stroke="#374151" />
               <Tooltip />
-              <Line type="monotone" dataKey="positive" stroke="#22c55e" strokeWidth={2} />
-              <Line type="monotone" dataKey="negative" stroke="#ef4444" strokeWidth={2} />
+              <Line type="monotone" dataKey="positive" stroke="#4ade80" strokeWidth={2} />
+              <Line type="monotone" dataKey="negative" stroke="#f87171" strokeWidth={2} />
+              <Line type="monotone" dataKey="neutral" stroke="#60a5fa" strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </div>
-
-      {/* Word Cloud */}
-      {data.wordcloud && (
-        <div className="mt-10 bg-white/20 backdrop-blur-lg p-6 rounded-2xl shadow-lg border border-white/30">
-          <h3 className="font-semibold mb-4 text-lg text-white">Word Cloud</h3>
-          <img
-            src={data.wordcloud}
-            alt="wordcloud"
-            className="mx-auto rounded-xl shadow-md"
-          />
-        </div>
-      )}
     </div>
   );
 }

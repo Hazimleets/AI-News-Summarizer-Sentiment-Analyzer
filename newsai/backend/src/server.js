@@ -1,37 +1,37 @@
-//backend/src/server.js
+// backend/src/server.js
 
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
-const morgan = require("morgan");
 const cors = require("cors");
-require("dotenv").config();
 
+const authRoutes = require("./routes/auth");
 const newsRoutes = require("./routes/news");
-const adminRoutes = require("./routes/admin");
 const analyticsRoutes = require("./routes/analytics");
 
 const app = express();
-app.use(express.json());
 app.use(cors());
-app.use(morgan("dev"));
+app.use(express.json());
 
-// Root endpoint
-app.get("/", (req, res) => {
-  res.send("Backend is running!");
-});
+// connect to Mongo
+const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/newsai";
+mongoose
+  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => console.error("❌ MongoDB error:", err));
 
 // routes
+app.use("/api/auth", authRoutes);
 app.use("/api/news", newsRoutes);
-app.use("/api/admin", adminRoutes);
 app.use("/api/analytics", analyticsRoutes);
 
-const PORT = process.env.PORT || 4000;
+// health check
+app.get("/", (req, res) => res.send("✅ NewsAI API is running"));
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    app.listen(PORT, () =>
-      console.log(`🚀 Backend running on http://localhost:${PORT}`)
-    );
-  })
-  .catch((err) => console.error("DB connection error:", err));
+/* =====================
+   START SERVER
+===================== */
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on http://localhost:${PORT}`)
+);
