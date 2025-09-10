@@ -1,5 +1,4 @@
-//backend/src/utils/auth.js
-
+// backend/src/utils/auth.js
 const jwt = require("jsonwebtoken");
 
 exports.authMiddleware = (req, res, next) => {
@@ -14,4 +13,3 @@ exports.authMiddleware = (req, res, next) => {
     res.status(401).json({ error: "Invalid token" });
   }
 };
-

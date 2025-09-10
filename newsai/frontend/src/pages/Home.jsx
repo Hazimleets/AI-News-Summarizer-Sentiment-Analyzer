@@ -1,3 +1,5 @@
+//frontend/src/pages/Home.jsx
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Waves from "../components/Waves";
@@ -21,7 +23,11 @@ function Home() {
       });
 
       const data = await res.json();
-      navigate("/results", { state: { keyword, results: data.results || [] } });
+
+      // ✅ Fix: handle both { results: [...] } and raw [...]
+      navigate("/results", {
+        state: { keyword, results: data.results || data },
+      });
     } catch (err) {
       console.error("Search failed:", err);
       navigate("/results", { state: { keyword, results: [] } });
@@ -30,7 +36,7 @@ function Home() {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-orange-500 to-red-500 overflow-hidden">
-      {/* Card content (higher at top) */}
+      {/* Card content */}
       <div className="pt-24 relative z-10 flex justify-center">
         <div className="bg-white/10 backdrop-blur-lg p-10 rounded-2xl shadow-xl max-w-2xl w-full border border-white/20">
           <h1 className="text-4xl font-bold mb-4 text-white drop-shadow-lg">

@@ -1,5 +1,4 @@
 // backend/src/server.js
-
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
@@ -16,7 +15,7 @@ app.use(express.json());
 // connect to Mongo
 const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/newsai";
 mongoose
-  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB error:", err));
 
@@ -28,9 +27,7 @@ app.use("/api/analytics", analyticsRoutes);
 // health check
 app.get("/", (req, res) => res.send("✅ NewsAI API is running"));
 
-/* =====================
-   START SERVER
-===================== */
+// start server
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () =>
   console.log(`🚀 Server running on http://localhost:${PORT}`)

@@ -1,31 +1,36 @@
 version: "3.8"
 
 services:
+  mongo:
+    image: mongo:6
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+
+  ai-service:
+    build: ./ai-service
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+
   backend:
     build: ./backend
-    ports:
-      - "4000:4000"
+    restart: unless-stopped
     env_file:
       - ./backend/.env
     depends_on:
       - ai-service
-    volumes:
-      - ./backend:/app
-
-  ai-service:
-    build: ./ai-service
+      - mongo
     ports:
-      - "8000:8000"
-    volumes:
-      - ./ai-service:/app
+      - "4000:4000"
 
-  mongo:
-    image: mongo:6
-    restart: always
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
     ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
+      - "80:80"
 
 volumes:
   mongo_data:
